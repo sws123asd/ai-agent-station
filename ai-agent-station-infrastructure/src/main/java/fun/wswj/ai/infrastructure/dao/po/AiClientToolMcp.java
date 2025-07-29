@@ -10,7 +10,8 @@ import java.util.Date;
 public class AiClientToolMcp {
     /** 主键ID */
     private Long id;
-    
+    /** MCPID */
+    private String mcpId;
     /** MCP名称 */
     private String mcpName;
     

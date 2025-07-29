@@ -10,6 +10,8 @@ import java.util.Date;
 public class AiClient {
     /** 主键ID */
     private Long id;
+
+    private String clientId;
     
     /** 客户端名称 */
     private String clientName;

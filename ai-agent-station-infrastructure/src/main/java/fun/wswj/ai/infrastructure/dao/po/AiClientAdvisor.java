@@ -9,7 +9,10 @@ import java.util.Date;
 @Data
 public class AiClientAdvisor {
     /** 主键ID */
-    private Long id;
+    private Long id
+            ;
+    /** 顾问ID */
+    private String advisorId;
     
     /** 顾问名称 */
     private String advisorName;

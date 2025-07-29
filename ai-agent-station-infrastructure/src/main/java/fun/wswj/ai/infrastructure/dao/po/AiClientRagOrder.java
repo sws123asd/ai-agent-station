@@ -7,9 +7,12 @@ import java.util.Date;
  * 知识库配置表
  */
 @Data
-public class AiRagOrder {
+public class AiClientRagOrder {
     /** 主键ID */
     private Long id;
+
+    /**知识库唯一id*/
+    private String ragId;
     
     /** 知识库名称 */
     private String ragName;
