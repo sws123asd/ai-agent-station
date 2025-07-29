@@ -10,6 +10,9 @@ import java.util.Date;
 public class AiAgent {
     /** 主键ID */
     private Long id;
+
+    /** 智能体ID */
+    private String agentId;
     
     /** 智能体名称 */
     private String agentName;

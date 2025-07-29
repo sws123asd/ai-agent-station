@@ -3,6 +3,7 @@
 <mapper namespace="fun.wswj.ai.infrastructure.dao.AiClientDao">
     <resultMap id="BaseResultMap" type="fun.wswj.ai.infrastructure.dao.po.AiClient">
         <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="client_id" property="clientId" jdbcType="VARCHAR" />
         <result column="client_name" property="clientName" jdbcType="VARCHAR" />
         <result column="description" property="description" jdbcType="VARCHAR" />
         <result column="status" property="status" jdbcType="TINYINT" />

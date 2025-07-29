@@ -10,7 +10,8 @@ import java.util.Date;
 public class AiClientSystemPrompt {
     /** 主键ID */
     private Long id;
-    
+    /** 提示词ID */
+    private String promptId;
     /** 提示词名称 */
     private String promptName;
     

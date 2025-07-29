@@ -3,6 +3,7 @@
 <mapper namespace="fun.wswj.ai.infrastructure.dao.AiClientAdvisorDao">
     <resultMap id="BaseResultMap" type="fun.wswj.ai.infrastructure.dao.po.AiClientAdvisor">
         <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="advisor_id" property="advisorId" jdbcType="VARCHAR" />
         <result column="advisor_name" property="advisorName" jdbcType="VARCHAR" />
         <result column="advisor_type" property="advisorType" jdbcType="VARCHAR" />
         <result column="order_num" property="orderNum" jdbcType="INTEGER" />
