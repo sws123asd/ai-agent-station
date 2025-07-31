@@ -11,4 +11,13 @@
         <result column="create_time" property="createTime" jdbcType="DATE" />
         <result column="update_time" property="updateTime" jdbcType="DATE" />
     </resultMap>
+    
+    <select id="queryValidByModelIds" resultType="fun.wswj.ai.infrastructure.dao.po.AiClientModel">
+        SELECT * FROM ai_client_model
+        WHERE model_id IN
+        <foreach item="item" collection="list" separator="," open="(" close=")" index="index">
+            #{item}
+        </foreach>
+        AND status = 1
+    </select>
 </mapper>

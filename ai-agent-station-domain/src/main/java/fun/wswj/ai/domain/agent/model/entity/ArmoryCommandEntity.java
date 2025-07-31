@@ -10,9 +10,14 @@ import java.util.List;
  * @description: 智能体预热参数实体
  */
 @Data
-public class AiAgentEngineStarterEntity {
+public class ArmoryCommandEntity {
     /**
-     * 大模型客户端id列表
+     * 命令类型
      */
-    private List<Long> clientIds;
+    private String commandType;
+
+    /**
+     * 命令索引（clientId、modelId、apiId...）
+     */
+    private List<String> commandIdList;
 }

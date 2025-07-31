@@ -2,7 +2,7 @@ package fun.wswj.ai.domain.agent.service.armory;
 
 import cn.bugstack.wrench.design.framework.tree.AbstractMultiThreadStrategyRouter;
 import fun.wswj.ai.domain.agent.adapter.repository.IAgentRepository;
-import fun.wswj.ai.domain.agent.model.entity.AiAgentEngineStarterEntity;
+import fun.wswj.ai.domain.agent.model.entity.ArmoryCommandEntity;
 import fun.wswj.ai.domain.agent.service.armory.factory.DefaultArmoryStrategyFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -16,7 +16,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @Date 2025/7/24 09:46
  * @description: 规则树抽象方法定义 （抽象模板）
  */
-public abstract class AbstractArmorySupport extends AbstractMultiThreadStrategyRouter<AiAgentEngineStarterEntity, DefaultArmoryStrategyFactory.DynamicContext, String> {
+public abstract class AbstractArmorySupport extends AbstractMultiThreadStrategyRouter<ArmoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext, String> {
 
     protected final ApplicationContext applicationContext;
     protected final ThreadPoolExecutor threadPoolExecutor;
@@ -29,10 +29,10 @@ public abstract class AbstractArmorySupport extends AbstractMultiThreadStrategyR
     }
 
     @Override
-    protected void multiThread(AiAgentEngineStarterEntity aiAgentEngineStarterEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext){}
+    protected void multiThread(ArmoryCommandEntity armoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext){}
 
 
-    protected String beanName(Long id){
+    protected String beanName(String id){
         return "default";
     }
     protected <T> T getBean(String beanName){
@@ -63,8 +63,8 @@ public abstract class AbstractArmorySupport extends AbstractMultiThreadStrategyR
         if (beanFactory.containsBeanDefinition(beanName)) {
             beanFactory.removeBeanDefinition(beanName);
         }
-        // 注册bean
-       beanFactory.registerBeanDefinition(beanName, beanDefinition);
+        // 注册beanDefinition
+        beanFactory.registerBeanDefinition(beanName, beanDefinition);
     }
 
 }

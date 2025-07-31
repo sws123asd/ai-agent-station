@@ -1,7 +1,7 @@
 package fun.wswj.ai.domain.agent.service.armory.factory;
 
 import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
-import fun.wswj.ai.domain.agent.model.entity.AiAgentEngineStarterEntity;
+import fun.wswj.ai.domain.agent.model.entity.ArmoryCommandEntity;
 import fun.wswj.ai.domain.agent.service.armory.node.RootNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,7 +44,7 @@ public class DefaultArmoryStrategyFactory {
     /**
      * 返回根节点 - 开始初始化树结构
      */
-    public StrategyHandler<AiAgentEngineStarterEntity, DefaultArmoryStrategyFactory.DynamicContext, String> strategyHandler() {
+    public StrategyHandler<ArmoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext, String> strategyHandler() {
         return rootNode;
     }
 

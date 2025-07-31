@@ -37,3 +37,4 @@ build/
 ### Mac OS ###
 .DS_Store
 /.idea/
+/ai-agent-station-app/data/log/

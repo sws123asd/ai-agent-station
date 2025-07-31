@@ -3,7 +3,7 @@ package fun.wswj.ai.domain.agent.service.armory.node;
 import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
 import com.alibaba.fastjson.JSON;
 import fun.wswj.ai.domain.agent.adapter.repository.IAgentRepository;
-import fun.wswj.ai.domain.agent.model.entity.AiAgentEngineStarterEntity;
+import fun.wswj.ai.domain.agent.model.entity.ArmoryCommandEntity;
 import fun.wswj.ai.domain.agent.model.valobj.AiClientMcpToolVO;
 import fun.wswj.ai.domain.agent.service.armory.AbstractArmorySupport;
 import fun.wswj.ai.domain.agent.service.armory.factory.DefaultArmoryStrategyFactory;
@@ -32,23 +32,23 @@ public class McpNode extends AbstractArmorySupport {
     }
 
     @Override
-    protected String doApply(AiAgentEngineStarterEntity aiAgentEngineStarterEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
-        log.info("Ai Agent 构建，tool mcp 节点 {}", JSON.toJSONString(aiAgentEngineStarterEntity));
+    protected String doApply(ArmoryCommandEntity armoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
+        log.info("Ai Agent 构建，tool mcp 节点 {}", JSON.toJSONString(armoryCommandEntity));
         // 从 dynamicContext 获取配置信息
         List<AiClientMcpToolVO> aiClientToolMcpList = dynamicContext.getValue("aiClientToolMcpList");
         if(CollectionUtils.isEmpty(aiClientToolMcpList)){
             log.warn("没有可用的AI客户端工具配置 MCP");
-            return router(aiAgentEngineStarterEntity, dynamicContext);
+            return router(armoryCommandEntity, dynamicContext);
         }
 
         for (AiClientMcpToolVO aiClientMcpToolVO : aiClientToolMcpList) {
             // 创建实例对象
             McpSyncClient mcpSyncClient = createMcpSyncClient(aiClientMcpToolVO);
             // 抽象模板自定义注册方法进行注册
-            registerBean(beanName(aiClientMcpToolVO.getId()), McpSyncClient.class, mcpSyncClient);
+            registerBean(beanName(aiClientMcpToolVO.getMcpId()), McpSyncClient.class, mcpSyncClient);
         }
         // 执行router进行下一节点
-        return router(aiAgentEngineStarterEntity, dynamicContext);
+        return router(armoryCommandEntity, dynamicContext);
     }
 
     private McpSyncClient createMcpSyncClient(AiClientMcpToolVO aiClientMcpToolVO) {
@@ -57,12 +57,12 @@ public class McpNode extends AbstractArmorySupport {
     }
 
     @Override
-    protected String beanName(Long id) {
+    protected String beanName(String id) {
         return "AiClientToolMcp_" + id;
     }
 
     @Override
-    public StrategyHandler<AiAgentEngineStarterEntity, DefaultArmoryStrategyFactory.DynamicContext, String> get(AiAgentEngineStarterEntity aiAgentEngineStarterEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
+    public StrategyHandler<ArmoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext, String> get(ArmoryCommandEntity armoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
         return advisorNode;
     }
 }

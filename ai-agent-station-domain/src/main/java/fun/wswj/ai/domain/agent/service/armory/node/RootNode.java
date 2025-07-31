@@ -2,19 +2,17 @@ package fun.wswj.ai.domain.agent.service.armory.node;
 
 import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
 import fun.wswj.ai.domain.agent.adapter.repository.IAgentRepository;
-import fun.wswj.ai.domain.agent.model.entity.AiAgentEngineStarterEntity;
-import fun.wswj.ai.domain.agent.model.valobj.*;
+import fun.wswj.ai.domain.agent.model.entity.ArmoryCommandEntity;
+import fun.wswj.ai.domain.agent.model.valobj.enums.CommandTypeEnum;
 import fun.wswj.ai.domain.agent.service.armory.AbstractArmorySupport;
 import fun.wswj.ai.domain.agent.service.armory.factory.DefaultArmoryStrategyFactory;
+import fun.wswj.ai.domain.agent.service.armory.strategy.ILoadDataStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
-
-import static java.util.Collections.emptyList;
 
 /**
  * @Author sws
@@ -26,10 +24,12 @@ import static java.util.Collections.emptyList;
 public class RootNode extends AbstractArmorySupport {
 
     private final McpNode mcpNode;
+    private final Map<String, ILoadDataStrategy> loadDataStrategyMap;
 
-    public RootNode(ApplicationContext applicationContext, ThreadPoolExecutor threadPoolExecutor, IAgentRepository agentRepository, McpNode mcpNode) {
+    public RootNode(ApplicationContext applicationContext, ThreadPoolExecutor threadPoolExecutor, IAgentRepository agentRepository, McpNode mcpNode, Map<String, ILoadDataStrategy> loadDataStrategyMap) {
         super(applicationContext, threadPoolExecutor, agentRepository);
         this.mcpNode = mcpNode;
+        this.loadDataStrategyMap = loadDataStrategyMap;
     }
 
 
@@ -39,72 +39,21 @@ public class RootNode extends AbstractArmorySupport {
       * @param dynamicContext 动态上下文
      */
     @Override
-    protected void multiThread(AiAgentEngineStarterEntity requestParameter, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) {
-        CompletableFuture<List<AiClientMcpToolVO>> aiMcpToolListFuture = CompletableFuture.supplyAsync(() -> {
-            log.info("查询配置数据(ai_client_tool_mcp) {}", requestParameter.getClientIds());
-            return agentRepository.queryAiClientToolMcpVOListByClientIds(requestParameter.getClientIds());
-        }, threadPoolExecutor)
-                .exceptionally(ex ->{
-                    log.error("查询配置数据(ai_client_tool_mcp) {}", requestParameter.getClientIds(), ex);
-                    return emptyList();
-                });
-        CompletableFuture<List<AiClientAdvisorVO>> aiAdvisorListFuture = CompletableFuture.supplyAsync(() -> {
-            log.info("查询配置数据(ai_client_advisor) {}", requestParameter.getClientIds());
-            return agentRepository.queryAiClientAdvisorVOListByClientIds(requestParameter.getClientIds());
-        }, threadPoolExecutor)
-                .exceptionally(ex ->{
-                    log.error("查询配置数据(ai_client_tool_mcp) {}", requestParameter.getClientIds(), ex);
-                    return emptyList();
-                });
-        CompletableFuture<List<AiClientPromptVO>> aiClientPromptListFuture = CompletableFuture.supplyAsync(() -> {
-            log.info("查询配置数据(ai_client_system_prompt) {}", requestParameter.getClientIds());
-            return agentRepository.queryAiClientSysTemPromptVOListByClientIds(requestParameter.getClientIds());
-        }, threadPoolExecutor)
-                .exceptionally(ex ->{
-                    log.error("查询配置数据(ai_client_tool_mcp) {}", requestParameter.getClientIds(), ex);
-                    return emptyList();
-                });
-        CompletableFuture<List<AiClientModelVO>> aiClientModelListFuture = CompletableFuture.supplyAsync(() -> {
-            log.info("查询配置数据(ai_client_model) {}", requestParameter.getClientIds());
-            return agentRepository.queryAiClientModelVOListByClientIds(requestParameter.getClientIds());
-        }, threadPoolExecutor)
-                .exceptionally(ex ->{
-                    log.error("查询配置数据(ai_client_model) {}", requestParameter.getClientIds(), ex);
-                    return emptyList();
-                });
-        CompletableFuture<List<AiClientVO>> aiClientListFuture = CompletableFuture.supplyAsync(() -> {
-            log.info("查询配置数据(ai_client) {}", requestParameter.getClientIds());
-            return agentRepository.queryAiClientVOListByClientIds(requestParameter.getClientIds());
-        }, threadPoolExecutor)
-                .exceptionally(ex ->{
-                    log.error("查询配置数据(ai_client) {}", requestParameter.getClientIds(), ex);
-                    return emptyList();
-                });
-
-
-        CompletableFuture.allOf(aiMcpToolListFuture,
-                                aiAdvisorListFuture,
-                                aiClientPromptListFuture,
-                                aiClientModelListFuture,
-                                aiClientListFuture)
-                .thenRun(
-                () ->{
-                    dynamicContext.setValue("aiClientToolMcpList", aiMcpToolListFuture.join());
-                    dynamicContext.setValue("aiClientAdvisorList", aiAdvisorListFuture.join());
-                    dynamicContext.setValue("aiSystemPromptConfig", aiClientPromptListFuture.join());
-                    dynamicContext.setValue("aiClientModelList", aiClientModelListFuture.join());
-                    dynamicContext.setValue("aiClientList", aiClientListFuture.join());
-                })
-                .join();
+    protected void multiThread(ArmoryCommandEntity requestParameter, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) {
+        // 策略模式，按照用户输入指令基于最小模块化思路进行装配
+        String commandType = requestParameter.getCommandType();
+        String loadDataStrategy = CommandTypeEnum.getByCode(commandType).getLoadDataStrategy();
+        ILoadDataStrategy strategyImpl = loadDataStrategyMap.get(loadDataStrategy);
+        strategyImpl.loadData(requestParameter,dynamicContext);
     }
 
     @Override
-    protected String doApply(AiAgentEngineStarterEntity aiAgentEngineStarterEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
-        return router(aiAgentEngineStarterEntity, dynamicContext);
+    protected String doApply(ArmoryCommandEntity armoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
+        return router(armoryCommandEntity, dynamicContext);
     }
 
     @Override
-    public StrategyHandler<AiAgentEngineStarterEntity, DefaultArmoryStrategyFactory.DynamicContext, String> get(AiAgentEngineStarterEntity aiAgentEngineStarterEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
+    public StrategyHandler<ArmoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext, String> get(ArmoryCommandEntity armoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
         return mcpNode;
     }
 }

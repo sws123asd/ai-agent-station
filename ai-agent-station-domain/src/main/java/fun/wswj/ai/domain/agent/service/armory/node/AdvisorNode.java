@@ -2,7 +2,7 @@ package fun.wswj.ai.domain.agent.service.armory.node;
 
 import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
 import fun.wswj.ai.domain.agent.adapter.repository.IAgentRepository;
-import fun.wswj.ai.domain.agent.model.entity.AiAgentEngineStarterEntity;
+import fun.wswj.ai.domain.agent.model.entity.ArmoryCommandEntity;
 import fun.wswj.ai.domain.agent.service.armory.AbstractArmorySupport;
 import fun.wswj.ai.domain.agent.service.armory.factory.DefaultArmoryStrategyFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -28,15 +28,15 @@ public class AdvisorNode extends AbstractArmorySupport {
     }
 
     @Override
-    protected String doApply(AiAgentEngineStarterEntity aiAgentEngineStarterEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
+    protected String doApply(ArmoryCommandEntity armoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
         // 从 dynamicContext 获取配置信息
         // 注册bean
         // 执行router进行下一节点
-        return router(aiAgentEngineStarterEntity, dynamicContext);
+        return router(armoryCommandEntity, dynamicContext);
     }
 
     @Override
-    public StrategyHandler<AiAgentEngineStarterEntity, DefaultArmoryStrategyFactory.DynamicContext, String> get(AiAgentEngineStarterEntity aiAgentEngineStarterEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
+    public StrategyHandler<ArmoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext, String> get(ArmoryCommandEntity armoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
         return modelNode;
     }
 }

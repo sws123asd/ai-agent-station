@@ -15,12 +15,39 @@ import java.util.Map;
  */
 @Data
 public class AiClientMcpToolVO {
-    private Long id;
+    /**
+     * MCP ID
+     */
+    private String mcpId;
+
+    /**
+     * MCP名称
+     */
     private String mcpName;
+
+    /**
+     * 传输类型(sse/stdio)
+     */
     private String transportType;
+
+    /**
+     * 传输配置(sse/stdio)
+     */
+    private String transportConfig;
+
+    /**
+     * 请求超时时间(分钟)
+     */
     private Integer requestTimeout;
-    private Integer status;
+
+    /**
+     * 传输配置 - sse
+     */
     private TransportConfigSse transportConfigSse;
+
+    /**
+     * 传输配置 - stdio
+     */
     private TransportConfigStdio transportConfigStdio;
 
     @Data

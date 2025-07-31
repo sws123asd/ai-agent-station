@@ -21,4 +21,13 @@
         api_key,completions_path,embeddings_path,
         status,create_time,update_time
     </sql>
+    
+    <select id="queryValidByApiIds" resultType="fun.wswj.ai.infrastructure.dao.po.AiClientApi">
+        SELECT * FROM ai_client_api
+        WHERE api_id IN
+        <foreach item="item" collection="list" separator="," open="(" close=")" index="index">
+            #{item}
+        </foreach>
+        AND status = 1
+    </select>
 </mapper>

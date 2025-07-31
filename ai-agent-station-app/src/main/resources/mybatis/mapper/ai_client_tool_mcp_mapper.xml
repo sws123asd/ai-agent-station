@@ -12,4 +12,16 @@
         <result column="create_time" property="createTime" jdbcType="DATE" />
         <result column="update_time" property="updateTime" jdbcType="DATE" />
     </resultMap>
+    <sql id="Base_Column_List">
+        id,mcp_id,mcp_name,transport_type,transport_config,request_timeout,status,create_time,update_time
+    </sql>
+    <select id="queryValidByMcpIds" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from ai_client_tool_mcp
+        where status = 1
+        and mcp_id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

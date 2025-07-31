@@ -11,13 +11,21 @@ import java.util.List;
  */
 public interface IAgentRepository {
 
-    List<AiClientMcpToolVO> queryAiClientToolMcpVOListByClientIds(List<Long> clientIds);
+    List<AiClientMcpToolVO> queryAiClientToolMcpVOListByClientIds(List<String> clientIdlist);
 
-    List<AiClientAdvisorVO> queryAiClientAdvisorVOListByClientIds(List<Long> clientIds);
+    List<AiClientAdvisorVO> queryAiClientAdvisorVOListByClientIds(List<String> clientIdlist);
 
-    List<AiClientPromptVO> queryAiClientSysTemPromptVOListByClientIds(List<Long> clientIds);
+    List<AiClientPromptVO> queryAiClientSysTemPromptVOListByClientIds(List<String> clientIdlist);
 
-    List<AiClientModelVO> queryAiClientModelVOListByClientIds(List<Long> clientIds);
+    List<AiClientModelVO> queryAiClientModelVOListByClientIds(List<String> clientIdlist);
 
-    List<AiClientVO> queryAiClientVOListByClientIds(List<Long> clientIds);
+    List<AiClientVO> queryAiClientVOListByClientIds(List<String> clientIdlist);
+
+    List<AiClientApiVO> queryAiClientApiVOListByClientIds(List<String> clientIdlist);
+
+    List<AiClientMcpToolVO> queryAiClientToolMcpVOListByModelIds(List<String> modelIdList);
+
+    List<AiClientApiVO> queryAiClientApiVOListByModelIds(List<String> modelIdlist);
+
+    List<AiClientModelVO> queryAiClientModelVOListByModelIds(List<String> modelIdlist);
 }
