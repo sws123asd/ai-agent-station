@@ -3,7 +3,7 @@ package fun.wswj.ai.domain.agent.service.armory.node;
 import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
 import fun.wswj.ai.domain.agent.adapter.repository.IAgentRepository;
 import fun.wswj.ai.domain.agent.model.entity.ArmoryCommandEntity;
-import fun.wswj.ai.domain.agent.model.valobj.enums.CommandTypeEnum;
+import fun.wswj.ai.domain.agent.model.valobj.enums.AiAgentElementEnum;
 import fun.wswj.ai.domain.agent.service.armory.AbstractArmorySupport;
 import fun.wswj.ai.domain.agent.service.armory.factory.DefaultArmoryStrategyFactory;
 import fun.wswj.ai.domain.agent.service.armory.strategy.ILoadDataStrategy;
@@ -42,7 +42,7 @@ public class RootNode extends AbstractArmorySupport {
     protected void multiThread(ArmoryCommandEntity requestParameter, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) {
         // 策略模式，按照用户输入指令基于最小模块化思路进行装配
         String commandType = requestParameter.getCommandType();
-        String loadDataStrategy = CommandTypeEnum.getByCode(commandType).getLoadDataStrategy();
+        String loadDataStrategy = AiAgentElementEnum.getByCode(commandType).getLoadDataStrategy();
         ILoadDataStrategy strategyImpl = loadDataStrategyMap.get(loadDataStrategy);
         strategyImpl.loadData(requestParameter,dynamicContext);
     }

@@ -1,19 +1,23 @@
 package fun.wswj.ai.infrastructure.adapter.repository;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.TypeReference;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fun.wswj.ai.domain.agent.adapter.repository.IAgentRepository;
 import fun.wswj.ai.domain.agent.model.valobj.*;
 import fun.wswj.ai.infrastructure.dao.*;
 import fun.wswj.ai.infrastructure.dao.po.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static fun.wswj.ai.domain.agent.model.valobj.enums.CommandTypeEnum.AI_CLIENT;
-import static fun.wswj.ai.domain.agent.model.valobj.enums.CommandTypeEnum.AI_CLIENT_MODEL;
+import static fun.wswj.ai.domain.agent.model.valobj.enums.AiAgentElementEnum.AI_CLIENT;
+import static fun.wswj.ai.domain.agent.model.valobj.enums.AiAgentElementEnum.AI_CLIENT_MODEL;
 import static fun.wswj.ai.domain.agent.model.valobj.enums.TargetTypeEnum.*;
 
 /**
@@ -21,6 +25,7 @@ import static fun.wswj.ai.domain.agent.model.valobj.enums.TargetTypeEnum.*;
  * @Date 2025/7/8 18:04
  * @description: 仓储层
  */
+@Slf4j
 @RequiredArgsConstructor
 @Repository
 public class AgentRepository implements IAgentRepository {
@@ -59,6 +64,25 @@ public class AgentRepository implements IAgentRepository {
             aiClientMcpToolVO.setTransportType(aiClientToolMcp.getTransportType());
             aiClientMcpToolVO.setTransportConfig(aiClientToolMcp.getTransportConfig());
             aiClientMcpToolVO.setRequestTimeout(aiClientToolMcp.getRequestTimeout());
+            // 设置sse和stdio对象
+            String transportConfig = aiClientToolMcp.getTransportConfig();
+            String transportType = aiClientToolMcp.getTransportType();
+            try {
+                if("sse".equals(transportType)){
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    AiClientMcpToolVO.TransportConfigSse transportConfigSse = objectMapper.readValue(transportConfig, AiClientMcpToolVO.TransportConfigSse.class);
+                    aiClientMcpToolVO.setTransportConfigSse(transportConfigSse);
+                } else if("stdio".equals(transportType)){
+                    Map<String, AiClientMcpToolVO.TransportConfigStdio.Stdio> stdio = JSON.parseObject(transportConfig, new TypeReference<>() {
+                    });
+                    AiClientMcpToolVO.TransportConfigStdio transportConfigStdio = new AiClientMcpToolVO.TransportConfigStdio();
+                    transportConfigStdio.setStdio(stdio);
+
+                    aiClientMcpToolVO.setTransportConfigStdio(transportConfigStdio);
+                }
+            } catch (JsonProcessingException e) {
+                log.error("解析mcp传输配置失败: {}", e.getMessage(), e);
+            }
             result.add(aiClientMcpToolVO);
         });
         return result;
@@ -102,6 +126,7 @@ public class AgentRepository implements IAgentRepository {
                 }
             } catch (Exception e) {
                 // 解析失败时忽略，使用默认值null
+                log.error("解析advisor配置失败: {}", e.getMessage(), e);
             }
             advisorVO.setChatMemory(chatMemory);
             advisorVO.setRagAnswer(ragAnswer);
@@ -156,6 +181,11 @@ public class AgentRepository implements IAgentRepository {
         if (CollectionUtils.isEmpty(modelIdList)) return List.of();
         // 查询模型配置
         List<AiClientModel> modelList = modelDao.queryValidByModelIds(modelIdList.stream().toList());
+        // 查询model配的mcp
+        Map<String, List<String>> modelMcpMap = configDao.queryBySourceTypeAndIds(AI_CLIENT_MODEL.getCode(), modelIdList.stream().toList())
+                .stream()
+                .filter(clientConfig -> TOOL_MCP.getCode().equals(clientConfig.getTargetType()) && clientConfig.getStatus() == 1)
+                .collect(Collectors.groupingBy(AiClientConfig::getSourceId, Collectors.mapping(AiClientConfig::getTargetId, Collectors.toList())));
         // 转换为VO
         if (CollectionUtils.isEmpty(modelList)) return List.of();
         List<AiClientModelVO> result = new ArrayList<>();
@@ -165,6 +195,7 @@ public class AgentRepository implements IAgentRepository {
             modelVO.setApiId(aiClientModel.getApiId());
             modelVO.setModelName(aiClientModel.getModelName());
             modelVO.setModelType(aiClientModel.getModelType());
+            modelVO.setToolMcpIds(modelMcpMap.getOrDefault(aiClientModel.getModelId(), List.of()));
             result.add(modelVO);
         });
         return result;

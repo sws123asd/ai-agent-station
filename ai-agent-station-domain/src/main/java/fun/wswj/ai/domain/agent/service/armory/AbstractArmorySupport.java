@@ -32,8 +32,12 @@ public abstract class AbstractArmorySupport extends AbstractMultiThreadStrategyR
     protected void multiThread(ArmoryCommandEntity armoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext){}
 
 
-    protected String beanName(String id){
-        return "default";
+    protected String beanName(String id) {
+        return null;
+    }
+
+    protected String dataName() {
+        return null;
     }
     protected <T> T getBean(String beanName){
         return (T) applicationContext.getBean(beanName);

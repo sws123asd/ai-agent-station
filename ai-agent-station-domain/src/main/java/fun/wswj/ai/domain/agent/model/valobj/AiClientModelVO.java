@@ -3,6 +3,8 @@ package fun.wswj.ai.domain.agent.model.valobj;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class AiClientModelVO {
     /**
@@ -24,4 +26,9 @@ public class AiClientModelVO {
      * 模型类型：openai、deepseek、claude
      */
     private String modelType;
+
+    /**
+     * 工具 mcp ids
+     */
+    private List<String> toolMcpIds;
 }

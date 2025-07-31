@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import static fun.wswj.ai.domain.agent.model.valobj.enums.AiAgentElementEnum.*;
 import static java.util.Collections.emptyList;
 
 /**
@@ -86,12 +87,12 @@ public class AiClientLoadDataStrategy implements ILoadDataStrategy {
                         aiClientListFuture)
                 .thenRun(
                         () ->{
-                            dynamicContext.setValue("aiClientToolMcpList", aiMcpToolListFuture.join());
-                            dynamicContext.setValue("aiClientAdvisorList", aiAdvisorListFuture.join());
-                            dynamicContext.setValue("aiSystemPromptList", aiClientPromptListFuture.join());
-                            dynamicContext.setValue("aiClientApiList", aiClientApiListFuture.join());
-                            dynamicContext.setValue("aiClientModelList", aiClientModelListFuture.join());
-                            dynamicContext.setValue("aiClientList", aiClientListFuture.join());
+                            dynamicContext.setValue(AI_CLIENT_TOOL_MCP.getDataName(), aiMcpToolListFuture.join());
+                            dynamicContext.setValue(AI_CLIENT_ADVISOR.getDataName(), aiAdvisorListFuture.join());
+                            dynamicContext.setValue(AI_CLIENT_SYSTEM_PROMPT.getDataName(), aiClientPromptListFuture.join());
+                            dynamicContext.setValue(AI_CLIENT_API.getDataName(), aiClientApiListFuture.join());
+                            dynamicContext.setValue(AI_CLIENT_MODEL.getDataName(), aiClientModelListFuture.join());
+                            dynamicContext.setValue(AI_CLIENT.getDataName(), aiClientListFuture.join());
                         })
                 .join();
     }

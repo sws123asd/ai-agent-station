@@ -20,11 +20,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Component
 public class AdvisorNode extends AbstractArmorySupport {
 
-    private final ModelNode modelNode;
+    private final ClientNode clientNode;
 
-    protected AdvisorNode(ApplicationContext applicationContext, ThreadPoolExecutor threadPoolExecutor, IAgentRepository repository, ModelNode modelNode) {
+    protected AdvisorNode(ApplicationContext applicationContext, ThreadPoolExecutor threadPoolExecutor, IAgentRepository repository, ModelNode modelNode, ClientNode clientNode) {
         super(applicationContext, threadPoolExecutor, repository);
-        this.modelNode = modelNode;
+        this.clientNode = clientNode;
     }
 
     @Override
@@ -37,6 +37,6 @@ public class AdvisorNode extends AbstractArmorySupport {
 
     @Override
     public StrategyHandler<ArmoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext, String> get(ArmoryCommandEntity armoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
-        return modelNode;
+        return clientNode;
     }
 }

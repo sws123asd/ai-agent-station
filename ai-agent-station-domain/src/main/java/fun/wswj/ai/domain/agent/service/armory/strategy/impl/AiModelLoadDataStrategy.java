@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import static fun.wswj.ai.domain.agent.model.valobj.enums.AiAgentElementEnum.*;
 import static java.util.Collections.emptyList;
 
 /**
@@ -22,7 +23,7 @@ import static java.util.Collections.emptyList;
  * @Date 2025/7/30 11:42
  * @description:
  */
-@Component("aiModelLoadDataStrategy")
+@Component("aiClientModelLoadDataStrategy")
 @Slf4j
 public class AiModelLoadDataStrategy implements ILoadDataStrategy {
 
@@ -64,9 +65,9 @@ public class AiModelLoadDataStrategy implements ILoadDataStrategy {
                         aiClientModelListFuture)
                 .thenRun(
                         () ->{
-                            dynamicContext.setValue("aiClientToolMcpList", aiMcpToolListFuture.join());
-                            dynamicContext.setValue("aiClientApiList", aiClientApiListFuture.join());
-                            dynamicContext.setValue("aiClientModelList", aiClientModelListFuture.join());
+                            dynamicContext.setValue(AI_CLIENT_TOOL_MCP.getDataName(), aiMcpToolListFuture.join());
+                            dynamicContext.setValue(AI_CLIENT_API.getDataName(), aiClientApiListFuture.join());
+                            dynamicContext.setValue(AI_CLIENT_MODEL.getDataName(), aiClientModelListFuture.join());
                         })
                 .join();
     }
