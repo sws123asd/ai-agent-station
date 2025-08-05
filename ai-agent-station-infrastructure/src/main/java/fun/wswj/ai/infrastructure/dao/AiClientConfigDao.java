@@ -7,7 +7,8 @@ import java.util.List;
 
 public interface AiClientConfigDao {
 
-    List<AiClientConfig> queryBySourceTypeAndIds(String sourceType, List<String> clientIdlist);
+    List<AiClientConfig> queryBySourceTypeAndIds(String sourceType, List<String> ids);
+    List<AiClientConfig> queryBySourceTypeAndIdsAndTargetTypes(String sourceType, List<String> ids, List<String> targetTypes);
 }
 
 

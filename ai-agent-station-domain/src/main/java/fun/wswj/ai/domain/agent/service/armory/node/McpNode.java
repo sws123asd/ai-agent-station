@@ -36,7 +36,7 @@ public class McpNode extends AbstractArmorySupport {
 
     private final ModelNode modelNode;
 
-    protected McpNode(ApplicationContext applicationContext, ThreadPoolExecutor threadPoolExecutor, IAgentRepository repository, AdvisorNode advisorNode, ModelNode modelNode) {
+    protected McpNode(ApplicationContext applicationContext, ThreadPoolExecutor threadPoolExecutor, IAgentRepository repository, ModelNode modelNode) {
         super(applicationContext, threadPoolExecutor, repository);
         this.modelNode = modelNode;
     }
@@ -45,7 +45,7 @@ public class McpNode extends AbstractArmorySupport {
     protected String doApply(ArmoryCommandEntity armoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
         log.info("Ai Agent 构建，tool mcp 节点");
         // 从 dynamicContext 获取配置信息
-        List<AiClientMcpToolVO> aiClientToolMcpList = dynamicContext.getValue("aiClientToolMcpList");
+        List<AiClientMcpToolVO> aiClientToolMcpList = dynamicContext.getValue(dataName());
         if(CollectionUtils.isEmpty(aiClientToolMcpList)){
             log.warn("没有可用的AI客户端工具配置 MCP");
             return router(armoryCommandEntity, dynamicContext);
@@ -107,7 +107,7 @@ public class McpNode extends AbstractArmorySupport {
 
     @Override
     protected String beanName(String id) {
-        return AI_CLIENT_TOOL_MCP.getBeanNameTag() + id;
+        return AI_CLIENT_TOOL_MCP.getBeanName(id);
     }
 
     @Override

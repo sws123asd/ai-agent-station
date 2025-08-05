@@ -43,7 +43,7 @@ public class ModelNode extends AbstractArmorySupport {
 
     @Override
     protected String doApply(ArmoryCommandEntity armoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
-        log.info("Ai Agent 构建节点，Mode 对话模型");
+        log.info("Ai Agent 构建节点，Model 节点");
         // 从 dynamicContext 获取配置信息
         List<AiClientModelVO> ModelList = dynamicContext.getValue(dataName());
         if(CollectionUtils.isEmpty(ModelList)){
@@ -80,6 +80,11 @@ public class ModelNode extends AbstractArmorySupport {
                                 .toolCallbacks(new SyncMcpToolCallbackProvider(mcpSyncClients).getToolCallbacks())
                                 .build())
                 .build();
+    }
+
+    @Override
+    protected String beanName(String id) {
+        return AI_CLIENT_MODEL.getBeanName(id);
     }
 
     @Override

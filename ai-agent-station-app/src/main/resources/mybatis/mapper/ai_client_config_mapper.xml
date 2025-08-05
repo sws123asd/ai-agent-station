@@ -22,10 +22,23 @@
         status,create_time,update_time
     </sql>
 
-    <select id="queryBySourceTypeAndIds" resultType="fun.wswj.ai.infrastructure.dao.po.AiClientConfig">
+    <select id="queryBySourceTypeAndIds" resultMap="BaseResultMap">
         select <include refid="Base_Column_List"/>
         from ai_client_config
         where source_type = #{sourceType}
+        and source_id in
+        <foreach item="item" collection="ids" separator="," open="(" close=")" index="index">
+            #{item}
+        </foreach>
+    </select>
+    <select id="queryBySourceTypeAndIdsAndTargetTypes" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from ai_client_config
+        where source_type = #{sourceType}
+        and target_type in
+        <foreach item="targetType" collection="targetTypes" separator="," open="(" close=")" index="index">
+            #{targetType}
+        </foreach>
         and source_id in
         <foreach item="item" collection="ids" separator="," open="(" close=")" index="index">
             #{item}

@@ -35,7 +35,7 @@ public class ApiNode extends AbstractArmorySupport {
     @Override
     protected String doApply(ArmoryCommandEntity armoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
         log.info("Ai Agent 构建，api 节点");
-        List<AiClientApiVO> aiClientApiList = dynamicContext.getValue("aiClientApiList");
+        List<AiClientApiVO> aiClientApiList = dynamicContext.getValue(dataName());
         if(CollectionUtils.isEmpty(aiClientApiList)){
             log.warn("没有可用的AI客户端API配置");
             return router(armoryCommandEntity, dynamicContext);
@@ -45,8 +45,8 @@ public class ApiNode extends AbstractArmorySupport {
             OpenAiApi openAiApi = OpenAiApi.builder()
                     .baseUrl(aiClientApiVO.getBaseUrl())
                     .apiKey(aiClientApiVO.getApiKey())
-                    .completionsPath(aiClientApiVO.getCompletionsPath())
-                    .embeddingsPath(aiClientApiVO.getEmbeddingsPath())
+//                    .completionsPath(aiClientApiVO.getCompletionsPath())
+//                    .embeddingsPath(aiClientApiVO.getEmbeddingsPath())
                     .build();
             // 注册beanDefinition
             registerBean(beanName(aiClientApiVO.getApiId()), OpenAiApi.class, openAiApi);
@@ -61,7 +61,7 @@ public class ApiNode extends AbstractArmorySupport {
 
     @Override
     protected String beanName(String id) {
-        return AI_CLIENT_API.getBeanNameTag() + id;
+        return AI_CLIENT_API.getBeanName(id);
     }
 
     @Override

@@ -44,7 +44,7 @@ public class DefaultArmoryStrategyFactory {
     /**
      * 返回根节点 - 开始初始化树结构
      */
-    public StrategyHandler<ArmoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext, String> strategyHandler() {
+    public StrategyHandler<ArmoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext, String> armoryStrategyHandler() {
         return rootNode;
     }
 

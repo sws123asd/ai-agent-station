@@ -10,11 +10,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static fun.wswj.ai.domain.agent.model.valobj.enums.AiAgentElementEnum.*;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 
 /**
  * @Author sws
@@ -47,13 +49,13 @@ public class AiClientLoadDataStrategy implements ILoadDataStrategy {
                     log.error("查询配置数据(ai_client_advisor) {}", requestParameter.getCommandIdList(), ex);
                     return emptyList();
                 });
-        CompletableFuture<List<AiClientPromptVO>> aiClientPromptListFuture = CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<Map<String,AiClientPromptVO>> aiClientPromptListFuture = CompletableFuture.supplyAsync(() -> {
                     log.info("查询配置数据(ai_client_system_prompt) {}", requestParameter.getCommandIdList());
                     return agentRepository.queryAiClientSysTemPromptVOListByClientIds(requestParameter.getCommandIdList());
                 }, threadPoolExecutor)
                 .exceptionally(ex ->{
                     log.error("查询配置数据(ai_client_system_prompt) {}", requestParameter.getCommandIdList(), ex);
-                    return emptyList();
+                    return emptyMap();
                 });
         CompletableFuture<List<AiClientApiVO>> aiClientApiListFuture = CompletableFuture.supplyAsync(() -> {
                     log.info("查询配置数据(ai_client_api) {}", requestParameter.getCommandIdList());

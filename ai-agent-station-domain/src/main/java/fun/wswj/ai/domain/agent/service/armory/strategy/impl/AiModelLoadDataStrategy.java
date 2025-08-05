@@ -34,15 +34,6 @@ public class AiModelLoadDataStrategy implements ILoadDataStrategy {
 
     @Override
     public void loadData(ArmoryCommandEntity armoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) {
-        CompletableFuture<List<AiClientMcpToolVO>> aiMcpToolListFuture = CompletableFuture.supplyAsync(() -> {
-                    log.info("查询配置数据(ai_model_tool_mcp) {}", armoryCommandEntity.getCommandIdList());
-                    return agentRepository.queryAiClientToolMcpVOListByModelIds(armoryCommandEntity.getCommandIdList());
-                }, threadPoolExecutor)
-                .exceptionally(ex ->{
-                    log.error("查询配置数据(ai_model_tool_mcp) {}", armoryCommandEntity.getCommandIdList(), ex);
-                    return emptyList();
-                });
-        
         CompletableFuture<List<AiClientApiVO>> aiClientApiListFuture = CompletableFuture.supplyAsync(() -> {
                     log.info("查询配置数据(ai_model_api) {}", armoryCommandEntity.getCommandIdList());
                     return agentRepository.queryAiClientApiVOListByModelIds(armoryCommandEntity.getCommandIdList());
@@ -51,6 +42,15 @@ public class AiModelLoadDataStrategy implements ILoadDataStrategy {
                     log.error("查询配置数据(ai_model_api) {}", armoryCommandEntity.getCommandIdList(), ex);
                     return emptyList();
                 });
+        CompletableFuture<List<AiClientMcpToolVO>> aiMcpToolListFuture = CompletableFuture.supplyAsync(() -> {
+                    log.info("查询配置数据(ai_model_tool_mcp) {}", armoryCommandEntity.getCommandIdList());
+                    return agentRepository.queryAiClientToolMcpVOListByModelIds(armoryCommandEntity.getCommandIdList());
+                }, threadPoolExecutor)
+                .exceptionally(ex ->{
+                    log.error("查询配置数据(ai_model_tool_mcp) {}", armoryCommandEntity.getCommandIdList(), ex);
+                    return emptyList();
+                });
+
         CompletableFuture<List<AiClientModelVO>> aiClientModelListFuture = CompletableFuture.supplyAsync(() -> {
                     log.info("查询配置数据(ai_model) {}", armoryCommandEntity.getCommandIdList());
                     return agentRepository.queryAiClientModelVOListByModelIds(armoryCommandEntity.getCommandIdList());

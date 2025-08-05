@@ -3,6 +3,7 @@ package fun.wswj.ai.domain.agent.adapter.repository;
 import fun.wswj.ai.domain.agent.model.valobj.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author sws
@@ -15,7 +16,7 @@ public interface IAgentRepository {
 
     List<AiClientAdvisorVO> queryAiClientAdvisorVOListByClientIds(List<String> clientIdlist);
 
-    List<AiClientPromptVO> queryAiClientSysTemPromptVOListByClientIds(List<String> clientIdlist);
+    Map<String,AiClientPromptVO> queryAiClientSysTemPromptVOListByClientIds(List<String> clientIdlist);
 
     List<AiClientModelVO> queryAiClientModelVOListByClientIds(List<String> clientIdlist);
 

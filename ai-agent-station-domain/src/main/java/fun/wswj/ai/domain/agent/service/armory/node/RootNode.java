@@ -23,12 +23,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Component
 public class RootNode extends AbstractArmorySupport {
 
-    private final McpNode mcpNode;
+    private final ApiNode apiNode;
     private final Map<String, ILoadDataStrategy> loadDataStrategyMap;
 
-    public RootNode(ApplicationContext applicationContext, ThreadPoolExecutor threadPoolExecutor, IAgentRepository agentRepository, McpNode mcpNode, Map<String, ILoadDataStrategy> loadDataStrategyMap) {
+    public RootNode(ApplicationContext applicationContext, ThreadPoolExecutor threadPoolExecutor, IAgentRepository agentRepository, ApiNode apiNode, Map<String, ILoadDataStrategy> loadDataStrategyMap) {
         super(applicationContext, threadPoolExecutor, agentRepository);
-        this.mcpNode = mcpNode;
+        this.apiNode = apiNode;
         this.loadDataStrategyMap = loadDataStrategyMap;
     }
 
@@ -54,6 +54,6 @@ public class RootNode extends AbstractArmorySupport {
 
     @Override
     public StrategyHandler<ArmoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext, String> get(ArmoryCommandEntity armoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext dynamicContext) throws Exception {
-        return mcpNode;
+        return apiNode;
     }
 }
