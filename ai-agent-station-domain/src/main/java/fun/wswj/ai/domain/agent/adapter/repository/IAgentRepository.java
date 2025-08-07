@@ -31,4 +31,8 @@ public interface IAgentRepository {
     List<AiClientModelVO> queryAiClientModelVOListByModelIds(List<String> modelIdlist);
 
     List<String> queryAiClientIdsByAiAgentId(Long aiAgentId);
+
+    List<String> queryAllAiClientIds();
+
+    void createTagOrder(AiClientRagVo aiRagOrderVO);
 }

@@ -6,4 +6,11 @@ package fun.wswj.ai.domain.agent.service;
  * @description: 智能体预热 - 初始实例化接口
  */
 public interface IAiAgentPreheatService {
+
+    /**
+     * 服务预热，启动时触达
+     */
+    void preheat() throws Exception;
+
+    void preheat(String aiClientId) throws Exception;
 }

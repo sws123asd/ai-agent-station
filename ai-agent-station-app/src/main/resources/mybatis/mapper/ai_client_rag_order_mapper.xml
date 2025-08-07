@@ -10,4 +10,11 @@
         <result column="create_time" property="createTime" jdbcType="DATE" />
         <result column="update_time" property="updateTime" jdbcType="DATE" />
     </resultMap>
+    <sql id="Base_Column_List">
+        id, rag_id, rag_name, knowledge_tag, status, create_time, update_time
+    </sql>
+    <insert id="createTagOrder">
+        INSERT INTO ai_client_rag_order (rag_id, rag_name, knowledge_tag)
+        VALUES (#{ragId}, #{ragName}, #{knowledgeTag})
+    </insert>
 </mapper>

@@ -10,4 +10,6 @@ import java.util.List;
 public interface AiAgentDao {
 
     List<AiAgent> queryAll();
+
+    List<String> queryValidClientIds();
 }

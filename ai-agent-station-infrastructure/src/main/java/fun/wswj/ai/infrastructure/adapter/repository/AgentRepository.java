@@ -40,6 +40,7 @@ public class AgentRepository implements IAgentRepository {
     private final AiClientDao clientDao;
     private final AiAgentDao aiAgentDao;
     private final AiAgentFlowConfigDao aiAgentFlowConfigDao;
+    private final AiRagOrderDao ragOrderDao;
 
 
     @Override
@@ -403,6 +404,21 @@ public class AgentRepository implements IAgentRepository {
         List<AiAgentFlowConfig> aiAgentFlowConfigList = aiAgentFlowConfigDao.queryByAiAgentId(aiAgentId);
         if (CollectionUtils.isEmpty(aiAgentFlowConfigList)) return Collections.emptyList();
         return aiAgentFlowConfigList.stream().map(config -> config.getClientId().toString()).toList();
+    }
+
+    @Override
+    public List<String> queryAllAiClientIds() {
+        // 查询所有有效的智能体关联的客户端ID
+        return aiAgentDao.queryValidClientIds();
+    }
+
+    @Override
+    public void createTagOrder(AiClientRagVo aiRagOrderVO) {
+        AiClientRagOrder aiClientRagOrder = new AiClientRagOrder();
+        aiClientRagOrder.setRagId(aiRagOrderVO.getRagId());
+        aiClientRagOrder.setRagName(aiRagOrderVO.getRagName());
+        aiClientRagOrder.setKnowledgeTag(aiRagOrderVO.getKnowledgeTag());
+        ragOrderDao.createTagOrder(aiClientRagOrder);
     }
 
     /**

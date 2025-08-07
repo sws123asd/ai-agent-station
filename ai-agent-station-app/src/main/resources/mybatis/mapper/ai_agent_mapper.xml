@@ -13,7 +13,22 @@
     </resultMap>
 
 
+    <sql id="Base_Column_List">
+        id, agent_id, agent_name, description, channel, status, create_time, update_time
+    </sql>
     <select id="queryAll" resultMap="BaseResultMap">
-        SELECT * FROM ai_agent
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM ai_agent
+    </select>
+    <select id="queryValidClientIds" resultType="java.lang.String">
+        SELECT DISTINCT
+            afc.client_id
+        FROM
+        ai_agent a
+        JOIN
+        ai_agent_flow_config afc ON a.agent_id = afc.agent_id
+        WHERE
+            a.status = 1
     </select>
 </mapper>
