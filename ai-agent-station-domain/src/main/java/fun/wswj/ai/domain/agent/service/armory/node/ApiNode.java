@@ -42,12 +42,17 @@ public class ApiNode extends AbstractArmorySupport {
         }
         for (AiClientApiVO aiClientApiVO : aiClientApiList) {
             // 构建实例
-            OpenAiApi openAiApi = OpenAiApi.builder()
+            OpenAiApi.Builder builder = OpenAiApi.builder()
                     .baseUrl(aiClientApiVO.getBaseUrl())
-                    .apiKey(aiClientApiVO.getApiKey())
-//                    .completionsPath(aiClientApiVO.getCompletionsPath())
-//                    .embeddingsPath(aiClientApiVO.getEmbeddingsPath())
-                    .build();
+                    .apiKey(aiClientApiVO.getApiKey());
+            if (aiClientApiVO.getCompletionsPath() != null && !aiClientApiVO.getCompletionsPath().trim().isEmpty()) {
+                builder.completionsPath(aiClientApiVO.getCompletionsPath());
+            }
+
+            if (aiClientApiVO.getEmbeddingsPath() != null && !aiClientApiVO.getEmbeddingsPath().trim().isEmpty()) {
+                builder.embeddingsPath(aiClientApiVO.getEmbeddingsPath());
+            }
+            OpenAiApi openAiApi = builder.build();
             // 注册beanDefinition
             registerBean(beanName(aiClientApiVO.getApiId()), OpenAiApi.class, openAiApi);
         }

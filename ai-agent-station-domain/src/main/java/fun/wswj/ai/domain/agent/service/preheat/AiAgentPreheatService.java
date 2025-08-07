@@ -1,6 +1,10 @@
 package fun.wswj.ai.domain.agent.service.preheat;
 
-import fun.wswj.ai.domain.agent.service.IAiAgentChatService;
+import fun.wswj.ai.domain.agent.service.IAiAgentPreheatService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
-public class AiAgentPreheatService implements IAiAgentChatService {
+@Slf4j
+@Service
+public class AiAgentPreheatService implements IAiAgentPreheatService {
 }

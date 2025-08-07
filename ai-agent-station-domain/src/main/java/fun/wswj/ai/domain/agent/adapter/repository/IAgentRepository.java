@@ -29,4 +29,6 @@ public interface IAgentRepository {
     List<AiClientApiVO> queryAiClientApiVOListByModelIds(List<String> modelIdlist);
 
     List<AiClientModelVO> queryAiClientModelVOListByModelIds(List<String> modelIdlist);
+
+    List<String> queryAiClientIdsByAiAgentId(Long aiAgentId);
 }

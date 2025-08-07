@@ -1,11 +1,12 @@
 package fun.wswj.ai.test;
 
-import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
 import com.alibaba.fastjson.JSON;
-import fun.wswj.ai.domain.agent.model.entity.ArmoryCommandEntity;
-import fun.wswj.ai.domain.agent.model.valobj.enums.AiAgentElementEnum;
-import fun.wswj.ai.domain.agent.service.armory.factory.DefaultArmoryStrategyFactory;
 import fun.wswj.ai.domain.agent.service.armory.factory.element.RagAnswerAdvisor;
+import io.modelcontextprotocol.client.McpClient;
+import io.modelcontextprotocol.client.McpSyncClient;
+import io.modelcontextprotocol.client.transport.HttpClientSseClientTransport;
+import io.modelcontextprotocol.client.transport.ServerParameters;
+import io.modelcontextprotocol.client.transport.StdioClientTransport;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -15,42 +16,34 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.PromptChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
+import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.mcp.SyncMcpToolCallbackProvider;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.pgvector.PgVectorStore;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import reactor.core.publisher.Flux;
 
+import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
 
-/**
- * @Author sws
- * @Date 2025/8/4 17:57
- * @description:
- */
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class AiAgentTest {
-
-    @Resource
-    private DefaultArmoryStrategyFactory defaultArmoryStrategyFactory;
-
-    @Resource
-    private ApplicationContext applicationContext;
-
-    @Autowired
-    private OpenAiChatModel openAiChatModel;
+public class OpenApiTest {
 
     private ChatModel chatModel;
+
+    private ChatClient chatClient;
+
     @Resource
     private PgVectorStore vectorStore;
 
@@ -58,77 +51,101 @@ public class AiAgentTest {
     public static final String CHAT_MEMORY_RETRIEVE_SIZE_KEY = "chat_memory_response_size";
 
     @Before
-    public void init() throws Exception {
-        StrategyHandler<ArmoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext, String> armoryStrategyHandler =
-                defaultArmoryStrategyFactory.armoryStrategyHandler();
+    public void init() {
 
-        ArmoryCommandEntity armoryCommandEntity = new ArmoryCommandEntity();
-        armoryCommandEntity.setCommandIdList(Arrays.asList("2001","2002"));
-        armoryCommandEntity.setCommandType(AiAgentElementEnum.AI_CLIENT_MODEL.getCode());
-        armoryStrategyHandler.apply(armoryCommandEntity,
-                new DefaultArmoryStrategyFactory.DynamicContext());
-        chatModel = (OpenAiChatModel) applicationContext.getBean(AiAgentElementEnum.AI_CLIENT_MODEL.getBeanName("2002"));
+        OpenAiApi openAiApi = OpenAiApi.builder()
+                .baseUrl("https://apis.itedus.cn")
+                .apiKey("sk-jNwXKo0k8fXUJVwd8b05841880D041F89b1d8949C2AfBeA4")
+                .completionsPath("v1/chat/completions")
+                .embeddingsPath("v1/embeddings")
+                .build();
+
+        chatModel = OpenAiChatModel.builder()
+                .openAiApi(openAiApi)
+                .defaultOptions(OpenAiChatOptions.builder()
+                        .model("gpt-4.1-mini")
+                        .toolCallbacks(new SyncMcpToolCallbackProvider(stdioMcpClient(), sseMcpClient01(), sseMcpClient02()).getToolCallbacks())
+                        .build())
+                .build();
+
+//        chatClient = ChatClient.builder(chatModel)
+//                .defaultSystem("""
+//                        	 你是一个 AI Agent 智能体，可以根据用户输入信息生成文章，并发送到 CSDN 平台以及完成微信公众号消息通知，今天是 {current_date}。
+//
+//                        	 你擅长使用Planning模式，帮助用户生成质量更高的文章。
+//
+//                        	 你的规划应该包括以下几个方面：
+//                        	 1. 分析用户输入的内容，生成技术文章。
+//                        	 2. 提取，文章标题（需要含带技术点）、文章内容、文章标签（多个用英文逗号隔开）、文章简述（100字）将以上内容发布文章到CSDN
+//                        	 3. 获取发送到 CSDN 文章的 URL 地址。
+//                        	 4. 微信公众号消息通知，平台：CSDN、主题：为文章标题、描述：为文章简述、跳转地址：从发布文章到CSDN获取 URL 地址
+//                        """)
+//                .defaultToolCallbacks(new SyncMcpToolCallbackProvider(stdioMcpClient(), sseMcpClient01(), sseMcpClient02()).getToolCallbacks())
+//                .defaultAdvisors(
+//                        PromptChatMemoryAdvisor.builder(
+//                                MessageWindowChatMemory.builder()
+//                                        .maxMessages(100)
+//                                        .build()
+//                        ).build(),
+//                        new RagAnswerAdvisor(vectorStore, SearchRequest.builder()
+//                                .topK(5)
+//                                .filterExpression("knowledge == 'article-prompt-words'")
+//                                .build()),
+//                        SimpleLoggerAdvisor.builder().build())
+//                .build();
     }
+
     @Test
-    public void test_call() {
-        Prompt prompt = new Prompt(
-                "2*5=?",
-                OpenAiChatOptions.builder()
-                        .model("qwen-plus-2025-01-25")
-                        .build());
-        ChatResponse response = openAiChatModel.call(prompt);
-        log.info("测试结果(call):{}", JSON.toJSONString(response));
-    }
-    @Test
-    public void test_aiClientModelNode() throws Exception {
-        StrategyHandler<ArmoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext, String> armoryStrategyHandler =
-                defaultArmoryStrategyFactory.armoryStrategyHandler();
+    public void test_chat_model_stream_01() throws InterruptedException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
 
-        ArmoryCommandEntity armoryCommandEntity = new ArmoryCommandEntity();
-        armoryCommandEntity.setCommandIdList(Arrays.asList("2001","2002"));
-        armoryCommandEntity.setCommandType(AiAgentElementEnum.AI_CLIENT_MODEL.getCode());
-        armoryStrategyHandler.apply(armoryCommandEntity,
-                new DefaultArmoryStrategyFactory.DynamicContext());
-        OpenAiChatModel openAiChatModel = (OpenAiChatModel) applicationContext.getBean(AiAgentElementEnum.AI_CLIENT_MODEL.getBeanName("2002"));
-
-        log.info("模型构建:{}", openAiChatModel);
-
-        // 1. 有哪些工具可以使用
-        // 2. 在 /Users/fuzhengwei/Desktop 创建 txt.md 文件
         Prompt prompt = Prompt.builder()
                 .messages(new UserMessage(
                         """
-                                  2的多少次方等于1024？
+                                有哪些工具可以使用
                                 """))
                 .build();
 
-        ChatResponse chatResponse = openAiChatModel.call(prompt);
+        // 非流式，chatModel.call(prompt)
+        Flux<ChatResponse> stream = chatModel.stream(prompt);
+
+        stream.subscribe(
+                chatResponse -> {
+                    AssistantMessage output = chatResponse.getResult().getOutput();
+                    log.info("测试结果: {}", JSON.toJSONString(output));
+                },
+                Throwable::printStackTrace,
+                () -> {
+                    countDownLatch.countDown();
+                    System.out.println("Stream completed");
+                }
+        );
+
+        countDownLatch.await();
+    }
+
+    @Test
+    public void test_chat_model_call() {
+        Prompt prompt = Prompt.builder()
+                .messages(new UserMessage(
+                        """
+                                有哪些工具可以使用
+                                """))
+                .build();
+
+        ChatResponse chatResponse = chatModel.call(prompt);
 
         log.info("测试结果(call):{}", JSON.toJSONString(chatResponse));
     }
 
     @Test
-    public void test_aiClient() throws Exception {
-        StrategyHandler<ArmoryCommandEntity, DefaultArmoryStrategyFactory.DynamicContext, String> armoryStrategyHandler =
-                defaultArmoryStrategyFactory.armoryStrategyHandler();
-
-        ArmoryCommandEntity armoryCommandEntity = new ArmoryCommandEntity();
-        armoryCommandEntity.setCommandIdList(Arrays.asList("3001"));
-        armoryCommandEntity.setCommandType(AiAgentElementEnum.AI_CLIENT.getCode());
-        armoryStrategyHandler.apply(armoryCommandEntity,
-                new DefaultArmoryStrategyFactory.DynamicContext());
-
-        ChatClient chatClient = (ChatClient) applicationContext.getBean(AiAgentElementEnum.AI_CLIENT.getBeanName("3001"));
-        log.info("客户端构建:{}", chatClient);
-
-
-        String content = chatClient.prompt("生成一篇文章")
+    public void test_02() {
+        String userInput = "王大瓜今年几岁";
+        System.out.println("\n>>> QUESTION: " + userInput);
+        System.out.println("\n>>> ASSISTANT: " + chatClient
+                .prompt(userInput)
                 .system(s -> s.param("current_date", LocalDate.now().toString()))
-                .advisors(a -> a
-                        .param(CHAT_MEMORY_CONVERSATION_ID_KEY, "chatId-102")
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 100))
-                .call().content();
-        log.info("测试结果(call):{}", JSON.toJSONString(content));
+                .call().content());
     }
 
     @Test
@@ -203,12 +220,12 @@ public class AiAgentTest {
                         ).build(),
                         new RagAnswerAdvisor(vectorStore, SearchRequest.builder()
                                 .topK(5)
-                                .filterExpression("knowledge == 'vector_store_openai'")
+                                .filterExpression("knowledge == 'article-prompt-words'")
                                 .build())
                 )
-//                .defaultOptions(OpenAiChatOptions.builder()
-//                        .model("gpt-4.1")
-//                        .build())
+                .defaultOptions(OpenAiChatOptions.builder()
+                        .model("gpt-4.1")
+                        .build())
                 .build();
 
         String content = chatClient01
@@ -234,6 +251,7 @@ public class AiAgentTest {
                         	 3. 获取发送到 CSDN 文章的 URL 地址。
                         	 4. 微信公众号消息通知，平台：CSDN、主题：为文章标题、描述：为文章简述、跳转地址：为发布文章到CSDN获取 URL地址 CSDN文章链接 https 开头的地址。
                         """)
+//                .defaultTools(new SyncMcpToolCallbackProvider(sseMcpClient01(), sseMcpClient02()))
                 .defaultAdvisors(
                         PromptChatMemoryAdvisor.builder(
                                 MessageWindowChatMemory.builder()
@@ -242,9 +260,9 @@ public class AiAgentTest {
                         ).build(),
                         new SimpleLoggerAdvisor()
                 )
-//                .defaultOptions(OpenAiChatOptions.builder()
-//                        .model("gpt-4.1")
-//                        .build())
+                .defaultOptions(OpenAiChatOptions.builder()
+                        .model("gpt-4.1")
+                        .build())
                 .build();
 
         String userInput = "生成一篇文章，要求如下 \r\n" + content;
@@ -257,4 +275,48 @@ public class AiAgentTest {
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 100))
                 .call().content());
     }
+
+    public McpSyncClient stdioMcpClient() {
+
+        // based on
+        // https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem
+        var stdioParams = ServerParameters.builder("npx")
+                .args("-y", "@modelcontextprotocol/server-filesystem", "/Users/fuzhengwei/Desktop", "/Users/fuzhengwei/Desktop")
+                .build();
+
+        var mcpClient = McpClient.sync(new StdioClientTransport(stdioParams))
+                .requestTimeout(Duration.ofSeconds(10)).build();
+
+        var init = mcpClient.initialize();
+
+        System.out.println("Stdio MCP Initialized: " + init);
+
+        return mcpClient;
+
+    }
+
+    public McpSyncClient sseMcpClient01() {
+
+        HttpClientSseClientTransport sseClientTransport = HttpClientSseClientTransport.builder("http://192.168.1.108:8102").build();
+
+        McpSyncClient mcpSyncClient = McpClient.sync(sseClientTransport).requestTimeout(Duration.ofMinutes(180)).build();
+
+        var init = mcpSyncClient.initialize();
+        System.out.println("SSE MCP Initialized: " + init);
+
+        return mcpSyncClient;
+    }
+
+    public McpSyncClient sseMcpClient02() {
+
+        HttpClientSseClientTransport sseClientTransport = HttpClientSseClientTransport.builder("http://192.168.1.108:8101").build();
+
+        McpSyncClient mcpSyncClient = McpClient.sync(sseClientTransport).requestTimeout(Duration.ofMinutes(180)).build();
+
+        var init = mcpSyncClient.initialize();
+        System.out.println("SSE MCP Initialized: " + init);
+
+        return mcpSyncClient;
+    }
+
 }

@@ -398,6 +398,13 @@ public class AgentRepository implements IAgentRepository {
         return result;
     }
 
+    @Override
+    public List<String> queryAiClientIdsByAiAgentId(Long aiAgentId) {
+        List<AiAgentFlowConfig> aiAgentFlowConfigList = aiAgentFlowConfigDao.queryByAiAgentId(aiAgentId);
+        if (CollectionUtils.isEmpty(aiAgentFlowConfigList)) return Collections.emptyList();
+        return aiAgentFlowConfigList.stream().map(config -> config.getClientId().toString()).toList();
+    }
+
     /**
      * 提取有效的目标ID
      */

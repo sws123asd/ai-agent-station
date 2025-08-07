@@ -1,7 +1,9 @@
 package fun.wswj.ai.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.ai.document.MetadataMode;
 import org.springframework.ai.openai.OpenAiEmbeddingModel;
+import org.springframework.ai.openai.OpenAiEmbeddingOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.pgvector.PgVectorStore;
@@ -30,7 +32,8 @@ public class AiAgentCongfig {
                 .apiKey(apiKey)
                 .build();
 
-        OpenAiEmbeddingModel embeddingModel = new OpenAiEmbeddingModel(openAiApi);
+        OpenAiEmbeddingModel embeddingModel = new OpenAiEmbeddingModel(openAiApi, MetadataMode.EMBED, OpenAiEmbeddingOptions.builder()
+                .model("text-embedding-3-small").build());
         return PgVectorStore.builder(pgVectorJdbcTemplate, embeddingModel)
                 .vectorTableName("vector_store_openai")
                 .build();

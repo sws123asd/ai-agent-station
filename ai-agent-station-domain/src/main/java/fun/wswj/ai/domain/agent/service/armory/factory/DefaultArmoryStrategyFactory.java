@@ -2,6 +2,7 @@ package fun.wswj.ai.domain.agent.service.armory.factory;
 
 import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
 import fun.wswj.ai.domain.agent.model.entity.ArmoryCommandEntity;
+import fun.wswj.ai.domain.agent.model.valobj.enums.AiAgentElementEnum;
 import fun.wswj.ai.domain.agent.service.armory.node.RootNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,12 +34,12 @@ public class DefaultArmoryStrategyFactory {
     }
 
 
-    public ChatClient chatClient(Long clientId) {
-        return (ChatClient) applicationContext.getBean("ChatClient_" + clientId);
+    public ChatClient chatClient(String clientId) {
+        return (ChatClient) applicationContext.getBean(AiAgentElementEnum.AI_CLIENT.getBeanName(clientId));
     }
 
-    public ChatModel chatModel(Long modelId) {
-        return (ChatModel) applicationContext.getBean("AiClientModel_" + modelId);
+    public ChatModel chatModel(String modelId) {
+        return (ChatModel) applicationContext.getBean(AiAgentElementEnum.AI_CLIENT_MODEL.getBeanName(modelId));
     }
 
     /**
