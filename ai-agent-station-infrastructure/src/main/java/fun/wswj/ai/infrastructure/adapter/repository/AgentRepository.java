@@ -403,7 +403,7 @@ public class AgentRepository implements IAgentRepository {
     public List<String> queryAiClientIdsByAiAgentId(Long aiAgentId) {
         List<AiAgentFlowConfig> aiAgentFlowConfigList = aiAgentFlowConfigDao.queryByAiAgentId(aiAgentId);
         if (CollectionUtils.isEmpty(aiAgentFlowConfigList)) return Collections.emptyList();
-        return aiAgentFlowConfigList.stream().map(config -> config.getClientId().toString()).toList();
+        return aiAgentFlowConfigList.stream().map(AiAgentFlowConfig::getClientId).toList();
     }
 
     @Override
@@ -419,6 +419,24 @@ public class AgentRepository implements IAgentRepository {
         aiClientRagOrder.setRagName(aiRagOrderVO.getRagName());
         aiClientRagOrder.setKnowledgeTag(aiRagOrderVO.getKnowledgeTag());
         ragOrderDao.createTagOrder(aiClientRagOrder);
+    }
+
+    @Override
+    public List<AiAgentClientFlowConfigVO> queryAgentFlowConfigByAgentId(String agentId) {
+        List<AiAgentFlowConfig> aiAgentFlowConfigList = aiAgentFlowConfigDao.queryByAiAgentId(Long.parseLong(agentId));
+        if (CollectionUtils.isEmpty(aiAgentFlowConfigList)) return List.of();
+        List<AiAgentClientFlowConfigVO> result = new ArrayList<>();
+        aiAgentFlowConfigList.forEach(aiAgentFlowConfig -> {
+            AiAgentClientFlowConfigVO aiAgentClientFlowConfigVO = new AiAgentClientFlowConfigVO();
+            aiAgentClientFlowConfigVO.setAgentId(aiAgentFlowConfig.getAgentId());
+            aiAgentClientFlowConfigVO.setClientId(aiAgentFlowConfig.getClientId());
+            aiAgentClientFlowConfigVO.setClientName(aiAgentFlowConfig.getClientName());
+            aiAgentClientFlowConfigVO.setClientType(aiAgentFlowConfig.getClientType());
+            aiAgentClientFlowConfigVO.setSequence(aiAgentFlowConfig.getSequence());
+            aiAgentClientFlowConfigVO.setStepPrompt(aiAgentFlowConfig.getStepPrompt());
+            result.add(aiAgentClientFlowConfigVO);
+        });
+        return result;
     }
 
     /**

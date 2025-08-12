@@ -72,7 +72,7 @@ public class McpNode extends AbstractArmorySupport {
                     .env(stdio.getEnv())
                     .build();
             McpSyncClient stdioMcpClient = McpClient.sync(new StdioClientTransport(parameters))
-                    .initializationTimeout(Duration.ofSeconds(aiClientMcpToolVO.getRequestTimeout()))
+                    .requestTimeout(Duration.ofSeconds(aiClientMcpToolVO.getRequestTimeout()))
                     .build();
             McpSchema.InitializeResult initialize = stdioMcpClient.initialize();
             log.info("Tool Stdio MCP Initialized {}", initialize);
@@ -96,7 +96,7 @@ public class McpNode extends AbstractArmorySupport {
                     .sseEndpoint(sseEndpoint) // 使用截取或默认的 sseEndpoint
                     .build();
             McpSyncClient sseMcpClient = McpClient.sync(sseClientTransport)
-                    .initializationTimeout(Duration.ofSeconds(aiClientMcpToolVO.getRequestTimeout()))
+                    .requestTimeout(Duration.ofSeconds(aiClientMcpToolVO.getRequestTimeout()))
                     .build();
             McpSchema.InitializeResult initialize = sseMcpClient.initialize();
             log.info("Tool SSE MCP Initialized {}", initialize);

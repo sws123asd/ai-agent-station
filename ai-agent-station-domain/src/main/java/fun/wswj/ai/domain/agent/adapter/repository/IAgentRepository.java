@@ -35,4 +35,6 @@ public interface IAgentRepository {
     List<String> queryAllAiClientIds();
 
     void createTagOrder(AiClientRagVo aiRagOrderVO);
+
+    List<AiAgentClientFlowConfigVO> queryAgentFlowConfigByAgentId(String agentId);
 }

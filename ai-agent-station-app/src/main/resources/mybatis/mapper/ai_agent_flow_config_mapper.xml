@@ -5,15 +5,18 @@
 <mapper namespace="fun.wswj.ai.infrastructure.dao.AiAgentFlowConfigDao">
 
     <resultMap id="BaseResultMap" type="fun.wswj.ai.infrastructure.dao.po.AiAgentFlowConfig">
-            <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="agentId" column="agent_id" jdbcType="BIGINT"/>
-            <result property="clientId" column="client_id" jdbcType="BIGINT"/>
-            <result property="sequence" column="sequence" jdbcType="INTEGER"/>
-            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <id property="id" column="id" />
+            <result property="agentId" column="agent_id" />
+            <result property="clientId" column="client_id" />
+            <result property="clientName" column="client_name" />
+            <result property="clientType" column="client_type"/>
+            <result property="sequence" column="sequence" />
+            <result property="stepPrompt" column="step_prompt" />
+            <result property="createTime" column="create_time" />
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,agent_id,client_id,sequence,create_time
+        id,agent_id,client_id, client_name, client_type, sequence, step_prompt, create_time
     </sql>
     <select id="queryByAiAgentId" resultMap="BaseResultMap">
         select <include refid="Base_Column_List"/>
