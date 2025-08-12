@@ -5,6 +5,7 @@ import fun.wswj.ai.domain.agent.model.entity.ArmoryCommandEntity;
 import fun.wswj.ai.domain.agent.model.entity.ExecuteCommandEntity;
 import fun.wswj.ai.domain.agent.model.valobj.enums.AiAgentElementEnum;
 import fun.wswj.ai.domain.agent.service.armory.factory.DefaultArmoryStrategyFactory;
+import fun.wswj.ai.domain.agent.service.execute.auto.AutoExectueStrategy;
 import fun.wswj.ai.domain.agent.service.execute.auto.step.factory.DefaultAutoAgentExecuteFactory;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +41,9 @@ public class AutoAgentTest {
 
     @Resource
     private DefaultAutoAgentExecuteFactory defaultAutoAgentExecuteStrategyFactory;
+
+    @Resource
+    private AutoExectueStrategy autoExectueStrategy;
 
     @Resource
     private ApplicationContext applicationContext;
@@ -107,7 +111,8 @@ public class AutoAgentTest {
                 "搜索并思考2025年Java3年工作经验的后端开发人员面试该准备哪些内容，请你编写一份md文档，将文档保存在/Users/joyboy/Desktop下。",
                 "session-id-" + System.currentTimeMillis(),
                 3);
-        String apply = executeHaandler.apply(executeCommandEntity, new DefaultAutoAgentExecuteFactory.DynamicContext());
-        log.info("测试结果:{}", apply);
+        autoExectueStrategy.execute(executeCommandEntity);
+//        String apply = executeHaandler.apply(executeCommandEntity, new DefaultAutoAgentExecuteFactory.DynamicContext());
+//        log.info("测试结果:{}", apply);
     }
 }

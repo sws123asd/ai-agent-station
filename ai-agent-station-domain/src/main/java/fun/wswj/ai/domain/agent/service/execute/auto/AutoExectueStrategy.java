@@ -1,5 +1,6 @@
 package fun.wswj.ai.domain.agent.service.execute.auto;
 
+import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
 import fun.wswj.ai.domain.agent.model.entity.ExecuteCommandEntity;
 import fun.wswj.ai.domain.agent.service.execute.IExecuteStrategy;
 import fun.wswj.ai.domain.agent.service.execute.auto.step.factory.DefaultAutoAgentExecuteFactory;
@@ -21,8 +22,9 @@ public class AutoExectueStrategy implements IExecuteStrategy {
     @Override
     public void execute(ExecuteCommandEntity requestParameter) throws Exception {
         // 从工厂获取决策链头节点
-        autoAgentExecuteFactory.getExecuteHaandler();
+        StrategyHandler<ExecuteCommandEntity, DefaultAutoAgentExecuteFactory.DynamicContext, String> executeHaandler = autoAgentExecuteFactory.getExecuteHaandler();
         // 开始执行
         log.info("auto execute strategy request:{}", requestParameter);
+        executeHaandler.apply(requestParameter, new DefaultAutoAgentExecuteFactory.DynamicContext());
     }
 }
